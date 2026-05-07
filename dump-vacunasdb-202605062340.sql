@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `activity_logs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `activity_logs` (
-  `id` char(36) NOT NULL DEFAULT uuid(),
+  `id` char(36) NOT NULL DEFAULT (UUID()),
   `user_id` int(11) NOT NULL,
   `username` varchar(100) DEFAULT NULL,
   `action_name` varchar(100) NOT NULL,
