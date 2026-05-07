@@ -17,8 +17,8 @@ FROM tomcat:10-jdk17
 RUN rm -rf /usr/local/tomcat/webapps/*
 
 # Copiar el .war generado de la etapa 1
-# Se nombra saludboyaca.war para que el context path sea /saludboyaca
-COPY --from=build /app/target/saludboyaca.war /usr/local/tomcat/webapps/saludboyaca.war
+# Se nombra ROOT.war para que se despliegue en la raíz (/) del servidor
+COPY --from=build /app/target/saludboyaca.war /usr/local/tomcat/webapps/ROOT.war
 
 EXPOSE 8080
 
