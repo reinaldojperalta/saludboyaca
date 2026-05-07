@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0.33
+    container_name: saludboyaca_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: vacunasdb
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # Este script se ejecutará automáticamente la primera vez que se inicie el contenedor
+      - ./dump-vacunasdb-202605062340.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: saludboyaca_mail
+    restart: always
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+
+  app:
+    build: .
+    container_name: saludboyaca_app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # Variables de entorno leídas por DatabaseConfig.java
+      DB_URL: jdbc:mysql://db:3306/vacunasdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USER: root
+      DB_PASS: admin123
+      # Variables de entorno leídas por OTPService.java
+      EMAIL_HOST: mailhog
+      EMAIL_PORT: 1025
+    depends_on:
+      db:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+
+volumes:
+  db_data:
