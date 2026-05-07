@@ -136,6 +136,22 @@
                                                 <i class="fa-solid fa-rotate"></i>
                                             </a>
                                         </c:if>
+                                        
+                                        <c:if test="${hasPermissionEditar}">
+                                            <a href="${pageContext.request.contextPath}/citas?accion=editar&id=${cita.id}" 
+                                               class="text-celeste hover:text-azul-salud p-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+                                               title="Editar">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </a>
+                                        </c:if>
+                                        
+                                        <c:if test="${hasPermissionEliminar}">
+                                            <button onclick="confirmarEliminar('${cita.id}')" 
+                                                    class="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                                                    title="Eliminar">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </c:if>
                                     </div>
                                 </td>
                             </tr>
@@ -156,6 +172,14 @@
     </main>
     
     <%@ include file="/WEB-INF/views/templates/footer.jsp" %>
+
+    <script>
+        function confirmarEliminar(id) {
+            if (confirm('¿Está seguro de que desea eliminar esta cita?')) {
+                window.location.href = '${pageContext.request.contextPath}/citas?accion=eliminar&id=' + id;
+            }
+        }
+    </script>
 
 </body>
 </html>

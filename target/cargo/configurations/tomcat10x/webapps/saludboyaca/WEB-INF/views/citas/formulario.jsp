@@ -63,7 +63,10 @@
         <form action="${pageContext.request.contextPath}/citas" method="POST" 
               class="bg-white rounded-xl shadow-sm p-6 sm:p-8">
             
-            <input type="hidden" name="accion" value="crear">
+            <input type="hidden" name="accion" value="${modoEdicion ? 'actualizar' : 'crear'}">
+            <c:if test="${modoEdicion}">
+                <input type="hidden" name="id" value="${cita.id}">
+            </c:if>
 
             <%-- Paciente --%>
             <div class="mb-6">
@@ -75,7 +78,9 @@
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-celeste focus:border-celeste outline-none transition-colors bg-gray-50">
                     <option value=""><fmt:message key="cita.seleccionar.paciente"/></option>
                     <c:forEach var="paciente" items="${pacientes}">
-                        <option value="${paciente.id}">${paciente.nombres} ${paciente.apellidos}</option>
+                        <option value="${paciente.id}" <c:if test="${cita.idPaciente == paciente.id}">selected</c:if>>
+                            ${paciente.nombres} ${paciente.apellidos}
+                        </option>
                     </c:forEach>
                 </select>
             </div>
@@ -90,7 +95,9 @@
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-celeste focus:border-celeste outline-none transition-colors bg-gray-50">
                     <option value=""><fmt:message key="cita.seleccionar.medico"/></option>
                     <c:forEach var="medico" items="${medicos}">
-                        <option value="${medico.id}">${medico.nombres} ${medico.apellidos}</option>
+                        <option value="${medico.id}" <c:if test="${cita.idMedico == medico.id}">selected</c:if>>
+                            ${medico.nombres} ${medico.apellidos}
+                        </option>
                     </c:forEach>
                 </select>
             </div>
@@ -105,7 +112,9 @@
                         class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-celeste focus:border-celeste outline-none transition-colors bg-gray-50">
                     <option value=""><fmt:message key="cita.seleccionar.especialidad"/></option>
                     <c:forEach var="esp" items="${especialidades}">
-                        <option value="${esp.id}">${esp.nombre}</option>
+                        <option value="${esp.id}" <c:if test="${cita.idEspecialidad == esp.id}">selected</c:if>>
+                            ${esp.nombre}
+                        </option>
                     </c:forEach>
                 </select>
             </div>
@@ -117,7 +126,7 @@
                         <i class="fa-solid fa-calendar mr-1.5 text-azul-salud"></i>
                         <fmt:message key="cita.fecha"/>
                     </label>
-                    <input type="date" id="fechaCita" name="fechaCita" required
+                    <input type="date" id="fechaCita" name="fechaCita" required value="${cita.fechaCita}"
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-celeste focus:border-celeste outline-none transition-colors bg-gray-50">
                 </div>
                 <div>
@@ -125,7 +134,7 @@
                         <i class="fa-solid fa-clock mr-1.5 text-azul-salud"></i>
                         <fmt:message key="cita.hora"/>
                     </label>
-                    <input type="time" id="horaCita" name="horaCita" required
+                    <input type="time" id="horaCita" name="horaCita" required value="${cita.horaCita}"
                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-celeste focus:border-celeste outline-none transition-colors bg-gray-50">
                 </div>
             </div>
@@ -138,7 +147,7 @@
                 </label>
                 <textarea id="motivo" name="motivo" rows="3"
                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-celeste focus:border-celeste outline-none transition-colors bg-gray-50 resize-none"
-                          placeholder="<fmt:message key='cita.motivo.placeholder'/>"></textarea>
+                          placeholder="<fmt:message key='cita.motivo.placeholder'/>">${cita.motivo}</textarea>
             </div>
 
             <%-- Botones --%>

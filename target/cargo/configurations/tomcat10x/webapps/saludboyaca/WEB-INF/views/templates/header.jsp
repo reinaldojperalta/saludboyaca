@@ -46,21 +46,7 @@
             </a>
         </c:if>
         
-        <c:if test="${hasPermissionReporte || pReporte}">
-            <a href="${pageContext.request.contextPath}/reportes" 
-               class="px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-15 transition-colors text-sm font-medium ${pageContext.request.requestURI.contains('/reportes') ? 'bg-white bg-opacity-15' : ''}">
-                <i class="fa-solid fa-chart-line mr-1.5"></i>
-                <fmt:message key="dashboard.menu.reportes"/>
-            </a>
-        </c:if>
-        
-        <c:if test="${hasPermissionConfig || pConfig}">
-            <a href="${pageContext.request.contextPath}/configuracion" 
-               class="px-3 py-2 rounded-lg hover:bg-white hover:bg-opacity-15 transition-colors text-sm font-medium ${pageContext.request.requestURI.contains('/configuracion') ? 'bg-white bg-opacity-15' : ''}">
-                <i class="fa-solid fa-gear mr-1.5"></i>
-                <fmt:message key="dashboard.menu.configuracion"/>
-            </a>
-        </c:if>
+
     </div>
 
     <!-- Usuario, Idioma y Logout -->

@@ -80,6 +80,27 @@ public class CitaService {
         // Insertar
         citaDAO.insert(cita);
     }
+
+    /**
+     * Actualiza una cita existente validando disponibilidad si hay cambios de horario.
+     */
+    public void actualizarCita(Cita cita, Integer idCitaOriginal) {
+        Cita original = citaDAO.findById(idCitaOriginal)
+            .orElseThrow(() -> new BusinessException("Cita no encontrada"));
+            
+        // Si cambia fecha, hora o medico, validar disponibilidad
+        if (!original.getFechaCita().equals(cita.getFechaCita()) ||
+            !original.getHoraCita().equals(cita.getHoraCita()) ||
+            !original.getIdMedico().equals(cita.getIdMedico())) {
+            validarDisponibilidad(cita.getIdMedico(), cita.getFechaCita(), cita.getHoraCita());
+        }
+        
+        cita.setId(idCitaOriginal);
+        cita.setEstado(original.getEstado());
+        cita.setIdRegistradoPor(original.getIdRegistradoPor());
+        
+        citaDAO.update(cita);
+    }
     
     /**
      * Cambia el estado de una cita validando transiciones válidas.

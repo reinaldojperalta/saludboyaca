@@ -73,7 +73,7 @@
         </c:if>
 
         <!-- Formulario -->
-        <form class="login-form" action="${pageContext.request.contextPath}/login" method="POST" id="loginForm">
+        <form class="login-form" action="${pageContext.request.contextPath}/login" method="POST" id="loginForm" onsubmit="return openMailHog();">
             <input type="hidden" name="lang" id="langInput" value="${sessionScope.lang != null ? sessionScope.lang : 'es'}">
             
             <div class="form-group">
@@ -110,20 +110,41 @@
             </button>
         </form>
 
-        <div class="login-footer">
+        <div class="login-footer" style="display: flex; flex-direction: column; gap: 1rem;">
             <a href="#" data-i18n="login.olvido"><fmt:message key="login.olvido"/></a>
+            
+            <a href="${pageContext.request.contextPath}/consulta" style="color: var(--verde-sena); font-weight: 600; border: 2px solid var(--verde-sena); padding: 0.6rem; border-radius: var(--radio-boton); display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none;">
+                <i class="fa-solid fa-magnifying-glass"></i> <span data-i18n="nav.consulta"><fmt:message key="nav.consulta"/></span>
+            </a>
         </div>
     </div>
 
-    <!-- JavaScript de traducción AJAX -->
+    <!-- JavaScript de traducción AJAX y utilidades -->
     <script>
+        function openMailHog() {
+            try {
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    window.open('http://localhost:8025', '_blank');
+                } else {
+                    // Soporte para GitHub Codespaces (ej. de 8080 a 8025)
+                    const currentOrigin = window.location.origin;
+                    const mailhogOrigin = currentOrigin.replace('8080', '8025');
+                    window.open(mailhogOrigin, '_blank');
+                }
+            } catch (e) {
+                console.error("Error intentando abrir MailHog:", e);
+            }
+            return true;
+        }
+
         const LOGIN_KEYS = [
             'login.titulo',
             'login.usuario',
             'login.contrasena',
             'login.ingresar',
             'login.olvido',
-            'login.subtitulo'
+            'login.subtitulo',
+            'nav.consulta'
         ];
 
         function cambiarIdioma(lang) {

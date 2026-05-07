@@ -74,6 +74,14 @@
                     </c:choose>
                 </p>
             </div>
+            
+            <c:if test="${hasPermissionEditar}">
+                <a href="${pageContext.request.contextPath}/horarios?accion=nuevo" 
+                   class="inline-flex items-center justify-center px-4 py-2 bg-verde-sena hover:bg-opacity-90 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm">
+                    <i class="fa-solid fa-plus mr-2"></i>
+                    Nuevo Horario
+                </a>
+            </c:if>
         </div>
 
         <%-- Mensaje de error --%>
@@ -99,6 +107,9 @@
                             <th class="p-4 font-semibold"><fmt:message key="horario.duracion"/></th>
                             <th class="p-4 font-semibold text-center"><fmt:message key="horario.max.citas"/></th>
                             <th class="p-4 font-semibold text-center"><fmt:message key="horario.estado"/></th>
+                            <c:if test="${hasPermissionEditar || hasPermissionEliminar}">
+                                <th class="p-4 font-semibold text-center">Acciones</th>
+                            </c:if>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
@@ -175,6 +186,29 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
+                                
+                                <%-- Acciones --%>
+                                <c:if test="${hasPermissionEditar || hasPermissionEliminar}">
+                                    <td class="p-4">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <c:if test="${hasPermissionEditar}">
+                                                <a href="${pageContext.request.contextPath}/horarios?accion=editar&id=${horario.id}" 
+                                                   class="text-celeste hover:text-azul-salud p-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+                                                   title="Editar">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                </a>
+                                            </c:if>
+                                            
+                                            <c:if test="${hasPermissionEliminar}">
+                                                <button onclick="confirmarEliminar('${horario.id}')" 
+                                                        class="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                                                        title="Eliminar">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </c:if>
+                                        </div>
+                                    </td>
+                                </c:if>
                             </tr>
                         </c:forEach>
                         <c:if test="${empty horarios}">
@@ -223,6 +257,14 @@
     </main>
     
     <%@ include file="/WEB-INF/views/templates/footer.jsp" %>
+    
+    <script>
+        function confirmarEliminar(id) {
+            if (confirm('¿Está seguro de que desea eliminar este horario?')) {
+                window.location.href = '${pageContext.request.contextPath}/horarios?accion=eliminar&id=' + id;
+            }
+        }
+    </script>
 
 </body>
 </html>

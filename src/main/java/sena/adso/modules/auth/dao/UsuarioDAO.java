@@ -175,6 +175,28 @@ public class UsuarioDAO extends GenericDAO<Usuario, Integer> {
         return Optional.empty();
     }
 
+    /**
+     * Lista usuarios por un rol específico (ej. "MEDICO")
+     */
+    public java.util.List<Usuario> listarPorRol(String rolName) {
+        String sql = "SELECT u.* FROM " + getTableName() + " u " +
+                "JOIN user_roles ur ON u.id = ur.user_id " +
+                "JOIN roles r ON ur.role_id = r.id " +
+                "WHERE r.name = ?";
+        java.util.List<Usuario> usuarios = new java.util.ArrayList<>();
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, rolName);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    usuarios.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("SELECT_BY_ROL", getTableName(), "rol=" + rolName, e);
+        }
+        return usuarios;
+    }
+
     // ============================================================
     // PRIVADOS
     // ============================================================

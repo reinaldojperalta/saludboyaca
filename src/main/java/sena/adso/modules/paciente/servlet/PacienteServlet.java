@@ -91,9 +91,13 @@ public class PacienteServlet extends BaseServlet {
 
             // Setear flags de permisos para el JSP (header.jsp los usa)
             req.setAttribute("pPaciente", true);
-            req.setAttribute("hasPermissionPaciente", hasPermission(req, "paciente:crear"));
-            req.setAttribute("hasPermissionEditar", hasPermission(req, "paciente:editar"));
-            req.setAttribute("hasPermissionEliminar", hasPermission(req, "paciente:eliminar"));
+            
+            String rol = getCurrentUserRol(req);
+            boolean isAdmin = "SUPERADMIN".equals(rol) || "ADMIN".equals(rol);
+            
+            req.setAttribute("hasPermissionPaciente", hasPermission(req, "paciente:crear") || isAdmin);
+            req.setAttribute("hasPermissionEditar", hasPermission(req, "paciente:editar") || isAdmin);
+            req.setAttribute("hasPermissionEliminar", hasPermission(req, "paciente:eliminar") || isAdmin);
 
             forward(req, resp, "pacientes/lista");
 

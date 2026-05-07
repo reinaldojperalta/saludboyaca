@@ -41,6 +41,7 @@ sena\adso\core\rbac\model\Rol.class
 sena\adso\core\dao\GenericDAO.class
 sena\adso\modules\auth\dao\UsuarioDAO.class
 sena\adso\modules\cita\dao\EspecialidadDAO.class
+sena\adso\core\exception\AuthException$1.class
 sena\adso\core\exception\AuthException.class
 sena\adso\modules\cita\model\Cita$Estado.class
 sena\adso\modules\auth\model\Persona$Builder.class

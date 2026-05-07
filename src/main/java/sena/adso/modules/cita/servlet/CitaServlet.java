@@ -17,6 +17,8 @@ import sena.adso.modules.cita.dao.CitaDAO;
 import sena.adso.modules.cita.dao.EspecialidadDAO;
 import sena.adso.modules.cita.model.Cita;
 import sena.adso.modules.cita.service.CitaService;
+import sena.adso.modules.paciente.dao.PacienteDAO;
+import sena.adso.modules.auth.dao.UsuarioDAO;
 
 /**
  * Servlet CRUD para Citas médicas.
@@ -27,11 +29,15 @@ public class CitaServlet extends BaseServlet {
     private final CitaDAO citaDAO;
     private final CitaService citaService;
     private final EspecialidadDAO especialidadDAO;
+    private final PacienteDAO pacienteDAO;
+    private final UsuarioDAO usuarioDAO;
 
     public CitaServlet() {
         this.citaDAO = new CitaDAO();
         this.citaService = new CitaService();
         this.especialidadDAO = new EspecialidadDAO();
+        this.pacienteDAO = new PacienteDAO();
+        this.usuarioDAO = new UsuarioDAO();
     }
 
     @Override
@@ -48,8 +54,10 @@ public class CitaServlet extends BaseServlet {
         switch (accion) {
             case "listar" -> listar(req, resp);
             case "nueva" -> mostrarFormulario(req, resp);
+            case "editar" -> mostrarEdicion(req, resp);
             case "detalle" -> mostrarDetalle(req, resp);
             case "cambiar-estado" -> mostrarCambioEstado(req, resp);
+            case "eliminar" -> eliminar(req, resp);
             default -> listar(req, resp);
         }
     }
@@ -67,6 +75,7 @@ public class CitaServlet extends BaseServlet {
 
         switch (accion) {
             case "crear" -> crear(req, resp);
+            case "actualizar" -> actualizar(req, resp);
             case "cambiar-estado" -> cambiarEstado(req, resp);
             default -> listar(req, resp);
         }
@@ -86,6 +95,14 @@ public class CitaServlet extends BaseServlet {
         try {
             List<Cita> citas = citaDAO.listarCompletas();
             req.setAttribute("citas", citas);
+            req.setAttribute("pCita", true);
+            
+            String rol = getCurrentUserRol(req);
+            boolean isAdmin = "SUPERADMIN".equals(rol) || "ADMIN".equals(rol);
+            
+            req.setAttribute("hasPermissionCita", hasPermission(req, "cita:crear") || isAdmin);
+            req.setAttribute("hasPermissionEditar", hasPermission(req, "cita:editar") || isAdmin);
+            req.setAttribute("hasPermissionEliminar", hasPermission(req, "cita:eliminar") || isAdmin);
             TransactionManager.commit();
 
             forward(req, resp, "citas/lista");
@@ -107,6 +124,45 @@ public class CitaServlet extends BaseServlet {
         TransactionManager.begin();
         try {
             req.setAttribute("especialidades", especialidadDAO.findAll());
+            req.setAttribute("pacientes", pacienteDAO.findAll());
+            req.setAttribute("medicos", usuarioDAO.listarPorRol("MEDICO"));
+            req.setAttribute("modoEdicion", false);
+            req.setAttribute("pCita", true);
+            TransactionManager.commit();
+
+            forward(req, resp, "citas/formulario");
+
+        } catch (Exception e) {
+            TransactionManager.rollback();
+            throw e;
+        } finally {
+            TransactionManager.close();
+        }
+    }
+
+    private void mostrarEdicion(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        if (!requirePermission(req, resp, "cita:editar"))
+            return;
+
+        Integer id = getIntParam(req, "id");
+        if (id == null) {
+            sendError(req, resp, "error.requerido", 400);
+            return;
+        }
+
+        TransactionManager.begin();
+        try {
+            Cita cita = citaDAO.findById(id)
+                    .orElseThrow(() -> new BusinessException("Cita no encontrada"));
+
+            req.setAttribute("cita", cita);
+            req.setAttribute("especialidades", especialidadDAO.findAll());
+            req.setAttribute("pacientes", pacienteDAO.findAll());
+            req.setAttribute("medicos", usuarioDAO.listarPorRol("MEDICO"));
+            req.setAttribute("modoEdicion", true);
+            req.setAttribute("pCita", true);
             TransactionManager.commit();
 
             forward(req, resp, "citas/formulario");
@@ -172,8 +228,94 @@ public class CitaServlet extends BaseServlet {
 
         } catch (BusinessException e) {
             req.setAttribute("error", e.getMessage());
-            req.setAttribute("especialidades", especialidadDAO.findAll());
+            TransactionManager.begin();
+            try {
+                req.setAttribute("especialidades", especialidadDAO.findAll());
+                req.setAttribute("pacientes", pacienteDAO.findAll());
+                req.setAttribute("medicos", usuarioDAO.listarPorRol("MEDICO"));
+                TransactionManager.commit();
+            } finally {
+                TransactionManager.close();
+            }
+            req.setAttribute("modoEdicion", false);
+            req.setAttribute("pCita", true);
             forward(req, resp, "citas/formulario");
+        }
+    }
+
+    private void actualizar(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        if (!requirePermission(req, resp, "cita:editar"))
+            return;
+
+        Integer id = getIntParam(req, "id");
+        if (id == null) {
+            sendError(req, resp, "error.requerido", 400);
+            return;
+        }
+
+        try {
+            Cita cita = construirDesdeRequest(req);
+
+            TransactionManager.begin();
+            try {
+                citaService.actualizarCita(cita, id);
+                audit(req, "CITA_UPDATE", "Cita", id);
+                TransactionManager.commit();
+
+                resp.sendRedirect(req.getContextPath() + "/citas?accion=listar");
+
+            } catch (Exception e) {
+                TransactionManager.rollback();
+                throw e;
+            } finally {
+                TransactionManager.close();
+            }
+
+        } catch (BusinessException e) {
+            req.setAttribute("error", e.getMessage());
+            req.setAttribute("cita", construirDesdeRequest(req));
+            TransactionManager.begin();
+            try {
+                req.setAttribute("especialidades", especialidadDAO.findAll());
+                req.setAttribute("pacientes", pacienteDAO.findAll());
+                req.setAttribute("medicos", usuarioDAO.listarPorRol("MEDICO"));
+                TransactionManager.commit();
+            } finally {
+                TransactionManager.close();
+            }
+            req.setAttribute("modoEdicion", true);
+            req.setAttribute("pCita", true);
+            forward(req, resp, "citas/formulario");
+        }
+    }
+
+    private void eliminar(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        if (!requirePermission(req, resp, "cita:eliminar"))
+            return;
+
+        Integer id = getIntParam(req, "id");
+        if (id == null) {
+            sendError(req, resp, "error.requerido", 400);
+            return;
+        }
+
+        TransactionManager.begin();
+        try {
+            citaDAO.delete(id);
+            audit(req, "CITA_DELETE", "Cita", id);
+            TransactionManager.commit();
+
+            resp.sendRedirect(req.getContextPath() + "/citas?accion=listar");
+
+        } catch (Exception e) {
+            TransactionManager.rollback();
+            throw e;
+        } finally {
+            TransactionManager.close();
         }
     }
 
