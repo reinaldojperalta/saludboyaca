@@ -5,12 +5,12 @@
 
 <nav class="bg-azul-salud text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-50">
     <!-- Logo y Marca -->
-    <div class="flex items-center space-x-3">
+    <a href="${pageContext.request.contextPath}/dashboard" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
         <div class="w-9 h-9 bg-verde-sena rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-heart-pulse text-lg"></i>
+            <i class="fa-solid fa-heart-pulse text-lg text-white"></i>
         </div>
         <span class="text-xl font-bold tracking-wider">SaludBoyacá</span>
-    </div>
+    </a>
 
     <!-- Menú Principal (RBAC) -->
     <div class="hidden md:flex space-x-1 items-center">

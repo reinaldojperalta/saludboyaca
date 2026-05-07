@@ -278,8 +278,14 @@
                 </c:if>
             </div>
 
-            <%-- Botón nueva consulta --%>
-            <div class="text-center mt-8">
+            <%-- Botones de acción --%>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+                <a href="${pageContext.request.contextPath}/consulta?accion=exportar-pdf&documento=${documento}" 
+                   class="inline-flex items-center px-6 py-3 bg-morado-seguridad text-white font-semibold rounded-lg shadow-md hover:bg-opacity-90 transition-all">
+                    <i class="fa-solid fa-file-pdf mr-2 text-lg"></i>
+                    Exportar a PDF
+                </a>
+
                 <a href="${pageContext.request.contextPath}/consulta" 
                    class="inline-flex items-center px-6 py-3 bg-white text-azul-salud font-semibold rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-azul-salud">
                     <i class="fa-solid fa-arrow-rotate-left mr-2"></i>

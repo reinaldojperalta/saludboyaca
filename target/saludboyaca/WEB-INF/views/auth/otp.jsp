@@ -82,13 +82,21 @@
         </form>
 
         <!-- Reenviar -->
-        <div class="text-center">
+        <div class="text-center space-y-4">
             <button type="button" 
                     onclick="window.location.reload()" 
                     style="background: none; border: none; color: var(--celeste-suave); cursor: pointer; font-size: 0.875rem; font-weight: 500;">
                 <i class="fa-solid fa-rotate-right" style="margin-right: 0.5rem;"></i>
                 <span data-i18n="otp.reenviar"><fmt:message key="otp.reenviar"/></span>
             </button>
+
+            <div class="pt-4 border-t border-gray-100">
+                <a href="https://mailhog-production-b741.up.railway.app" target="_blank"
+                   class="inline-flex items-center text-xs text-morado-otp hover:underline font-semibold">
+                    <i class="fa-solid fa-envelope-open-text mr-1.5"></i>
+                    Ver Correos (MailHog Live)
+                </a>
+            </div>
         </div>
     </div>
 
